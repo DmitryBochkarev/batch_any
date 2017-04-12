@@ -64,7 +64,7 @@ batching_manager.run
 puts a
 # => a
 puts b
-# => a
+# => b
 puts Service.fetch_count
 # => 1 # not 2
 ```
