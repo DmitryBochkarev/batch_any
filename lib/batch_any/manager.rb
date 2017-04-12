@@ -28,9 +28,9 @@ module BatchAny
       awaiting_services = @awaiting_services[service_class]
       service = awaiting_services.find { |service| service.can_serve?(item) }
       if service
-        service.append(item, Fiber.current)
+        service.items << item
       else
-        awaiting_services << item.service_class.new(item, Fiber.current)
+        awaiting_services << item.service_class.new(item)
       end
       Fiber.yield
     end

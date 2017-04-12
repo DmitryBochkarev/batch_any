@@ -1,10 +1,10 @@
 module BatchAny
   class Service
-    attr_reader :item_class
+    attr_reader :item_class, :items
 
-    def initialize(item, fiber)
+    def initialize(item)
       @item_class = item.class
-      @awaiting = {fiber => item}
+      @items = [item]
     end
 
     def can_serve?(item)
@@ -13,14 +13,6 @@ module BatchAny
 
     def fetch
       raise "Not implemented: #{self.class}#fetch, required by BatchAny::Service"
-    end
-
-    def items
-      @awaiting.values
-    end
-
-    def append(item, fiber)
-      @awaiting[fiber] = item
     end
   end
 end

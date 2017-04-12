@@ -37,7 +37,7 @@ class Service < BatchAny::Service
 
   def fetch
     @@fetch_count += 1
-    items.each { |item| item.value = STORAGE.fetch(item.index) }
+    items.each { |item| item.result { STORAGE.fetch(item.index) } }
   end
 end
 
