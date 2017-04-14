@@ -14,12 +14,29 @@ module BatchAny
     end
 
     def run
+      exceptions = []
       while @computations.any?
-        @computations.each(&:resume)
+        @computations.each do |computation|
+          begin
+            computation.resume
+          rescue => e
+            # FIXME:
+            exceptions << e
+          end
+        end
         linear_keep_if!(@computations, &:alive?)
-        @awaiting_services.values.each { |service| service.each(&:fetch) }
+        @awaiting_services.values.each do |services|
+          services.each do |service|
+            begin
+              service.fetch
+            rescue => e
+              service.items.each { |item| item.exception = e }
+            end
+          end
+        end
         @awaiting_services.clear
       end
+      exceptions
     end
 
     def enqueue_item(item)

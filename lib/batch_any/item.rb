@@ -1,6 +1,6 @@
 module BatchAny
   class Item
-    attr_reader :value, :exception
+    attr_accessor :value, :exception
 
     def service_class
       raise "Not implemented: #{self.class}#service_class -> Class, required by BatchAny::Item"
