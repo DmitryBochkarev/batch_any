@@ -108,7 +108,7 @@ RSpec.describe BatchAny do
       expect(a).to eq :a
       expect(b).to eq :b
       expect(c).to eq :c
-      expect(run).to eq []
+      expect(run[0]).to be_a described_class::Manager::FiberError
       expect(Service.fetch_count).to eq 2
     end
   end
@@ -116,10 +116,12 @@ RSpec.describe BatchAny do
   context 'batch fetch failed in context of batch manager and item failure not handled' do
     it do
       a = nil
+      run = nil
       m = described_class::Manager.new
       m.add_computation { a = Request.new('not a number').fetch }
-      expect { m.run }.to raise_error(ArgumentError)
+      expect { run = m.run }.not_to raise_error
       expect(a).to be_nil
+      expect(run[0]).to be_a described_class::Manager::FiberError
       expect(Service.fetch_count).to eq 1
     end
   end

@@ -1,5 +1,16 @@
 module BatchAny
   class Manager
+    class FiberError
+      attr_reader :fiber, :exception
+
+      def initialize(fiber, exception)
+        @fiber = fiber
+        @exception = exception
+      end
+    end
+
+    attr_reader :exceptions
+
     def initialize
       @computations = []
       @awaiting_services = {}
@@ -11,17 +22,17 @@ module BatchAny
         block.call
       end
       @computations << fiber
+      fiber
     end
 
     def run
-      exceptions = []
+      @exceptions = []
       while @computations.any?
         @computations.each do |computation|
           begin
             computation.resume
           rescue => e
-            # FIXME:
-            exceptions << e
+            @exceptions << FiberError.new(computation, e)
           end
         end
         linear_keep_if!(@computations, &:alive?)
@@ -36,7 +47,7 @@ module BatchAny
         end
         @awaiting_services.clear
       end
-      exceptions
+      @exceptions
     end
 
     def enqueue_item(item)
